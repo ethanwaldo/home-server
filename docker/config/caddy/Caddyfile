@@ -1,0 +1,69 @@
+# FILE: /home/waldo/server/docker/config/caddy/Caddyfile
+
+# --- Publicly Accessible Sites ---
+
+# Main website - serves static files with compression
+ethanwaldo.dev {
+    root * /srv/public
+    file_server
+    encode gzip zstd
+}
+
+# Headscale VPN server - proxy to local service
+hs.ethanwaldo.dev {
+    reverse_proxy localhost:8080
+}
+
+# --- VPN-Only Admin Panel ---
+
+# Admin interface - restricted to VPN clients only
+admin.ethanwaldo.dev {
+    # Match VPN IP ranges (Tailscale/Headscale and ULA)
+    @vpn_only remote_ip 100.64.0.0/10 fc00::/7
+
+    handle @vpn_only {
+        # Portainer Docker management UI
+        handle_path /portainer/* {
+            reverse_proxy https://localhost:9443 {
+                transport http {
+                    # Skip TLS verification for self-signed cert
+                    tls_insecure_skip_verify
+                }
+            }
+        }
+
+        # Webmin system administration interface
+        handle_path /webmin/* {
+            reverse_proxy http://localhost:10000
+        }
+
+        # Headscale web UI for VPN management
+        handle /web* {
+            reverse_proxy http://localhost:3001
+        }
+
+        # Ollama AI model server interface
+        handle_path /ollama/* {
+            reverse_proxy http://localhost:3002
+        }
+
+        # Default admin dashboard (static files)
+        handle {
+            root * /srv/admin
+            file_server
+        }
+    }
+
+    # Block non-VPN traffic with 403 error
+    handle {
+        respond "Access Denied. Please connect to the VPN." 403
+    }
+
+    # Compress responses for bandwidth efficiency
+    encode gzip zstd
+
+    # Log admin panel access attempts
+    log {
+        output file /var/log/caddy/admin.ethanwaldo.dev.log
+    }
+}

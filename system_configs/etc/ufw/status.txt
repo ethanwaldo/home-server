@@ -1,0 +1,23 @@
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22/tcp                     ALLOW IN    Anywhere                  
+[ 2] 10000/tcp                  ALLOW IN    Anywhere                  
+[ 3] Anywhere on wlan0          ALLOW FWD   Anywhere on wg0           
+[ 4] Anywhere on wlan0          ALLOW FWD   Anywhere on docker0       
+[ 5] 80/tcp                     ALLOW IN    Anywhere                  
+[ 6] 443/tcp                    ALLOW IN    Anywhere                  
+[ 7] 443/udp                    ALLOW IN    Anywhere                  
+[ 8] 9443/tcp                   ALLOW IN    Anywhere                  
+[ 9] 22/tcp on tailscale0       ALLOW IN    Anywhere                  
+[10] 22/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[11] 10000/tcp (v6)             ALLOW IN    Anywhere (v6)             
+[12] Anywhere (v6) on wlan0     ALLOW FWD   Anywhere (v6) on wg0      
+[13] Anywhere (v6) on wlan0     ALLOW FWD   Anywhere (v6) on docker0  
+[14] 80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[15] 443/tcp (v6)               ALLOW IN    Anywhere (v6)             
+[16] 443/udp (v6)               ALLOW IN    Anywhere (v6)             
+[17] 9443/tcp (v6)              ALLOW IN    Anywhere (v6)             
+[18] 22/tcp (v6) on tailscale0  ALLOW IN    Anywhere (v6)             
+
