@@ -1,0 +1,100 @@
+# FILE: /home/waldo/server/docker/config/caddy/Caddyfile
+
+# --- Publicly Accessible Sites ---
+
+# Main website - serves static files with compression
+ethanwaldo.dev {
+    root * /srv/public
+    file_server
+    encode gzip zstd
+}
+
+# Headscale VPN server - proxy to local service with CORS for UI
+hs.ethanwaldo.dev {
+    # Handle CORS preflight (OPTIONS) requests
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header {
+            Access-Control-Allow-Origin "https://admin.ethanwaldo.dev"
+            Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+            Access-Control-Allow-Headers "Authorization, Content-Type, Accept"
+            Access-Control-Allow-Credentials "true"
+            Access-Control-Max-Age "3600"
+            Vary Origin
+        }
+        respond 204
+    }
+
+    # Proxy API requests with CORS headers
+    handle {
+        reverse_proxy localhost:8080 {
+            # Ensure WebSocket connections (e.g., for DERP) are proxied correctly
+            flush_interval -1
+            header_down Access-Control-Allow-Origin "https://admin.ethanwaldo.dev"
+            header_down Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+            header_down Access-Control-Allow-Headers "Authorization, Content-Type, Accept"
+            header_down Access-Control-Allow-Credentials "true"
+            header_down Vary Origin
+        }
+    }
+}
+
+# --- VPN-Only Admin Panel ---
+
+# Admin interface - restricted to VPN clients only
+admin.ethanwaldo.dev {
+    # Match VPN IP ranges (Tailscale/Headscale and ULA)
+    @vpn_only remote_ip 100.64.0.0/10 fc00::/7
+
+    handle @vpn_only {
+        # Portainer Docker management UI
+        handle_path /portainer/* {
+            reverse_proxy https://localhost:9443 {
+                transport http {
+                    # Skip TLS verification for self-signed cert
+                    tls_insecure_skip_verify
+                }
+            }
+        }
+
+        # Webmin system administration interface
+        handle_path /webmin/* {
+            reverse_proxy http://localhost:10000
+        }
+
+        # Default admin dashboard (static files)
+        handle {
+            root * /srv/admin
+            file_server
+        }
+    }
+
+    # Block non-VPN traffic with 403 error
+    handle {
+        respond "Access Denied. Please connect to the VPN." 403
+    }
+
+    # Compress responses for bandwidth efficiency
+    encode gzip zstd
+
+    # Log admin panel access attempts
+    log {
+        output file /var/log/caddy/admin.ethanwaldo.dev.log
+    }
+}
+
+# --- VPN-Only AI Chat UI ---
+chat.ethanwaldo.dev { # <-- ADD THIS ENTIRE NEW SITE BLOCK
+    # Apply the same VPN-only protection
+    @vpn_only remote_ip 100.64.0.0/10 fc00::/7
+
+    handle @vpn_only {
+        # Reverse proxy all requests to the Open Web UI container
+        reverse_proxy http://localhost:3002
+    }
+
+    # Deny all other traffic
+    handle {
+        respond "Access Denied. Please connect to the VPN." 403
+    }
+}

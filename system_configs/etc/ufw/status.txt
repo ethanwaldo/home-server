@@ -1,0 +1,17 @@
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22/tcp                     ALLOW IN    Anywhere                  
+[ 2] Anywhere on wlan0          ALLOW FWD   Anywhere on docker0       
+[ 3] 80/tcp                     ALLOW IN    Anywhere                  
+[ 4] 443/tcp                    ALLOW IN    Anywhere                  
+[ 5] 443/udp                    ALLOW IN    Anywhere                  
+[ 6] 10000/tcp                  ALLOW IN    127.0.0.1                  # Allow Caddy to Webmin
+[ 7] 9443/tcp                   ALLOW IN    127.0.0.1                  # Allow Caddy to Portainer
+[ 8] 22/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[ 9] Anywhere (v6) on wlan0     ALLOW FWD   Anywhere (v6) on docker0  
+[10] 80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[11] 443/tcp (v6)               ALLOW IN    Anywhere (v6)             
+[12] 443/udp (v6)               ALLOW IN    Anywhere (v6)             
+

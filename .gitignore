@@ -1,0 +1,61 @@
+# FILE: /home/waldo/server/.gitignore
+
+# --- Environment Variables & Secrets ---
+
+# Environment files containing API keys and secrets
+docker/.env
+*.env
+.env.local
+.env.production
+
+# --- System Configuration Backups ---
+
+# Sensitive configuration backups
+system_configs/backup_info.txt
+system_configs/etc/ssh/ssh_host_*
+system_configs/etc/ssh/*_key*
+system_configs/home/.ssh/id_*
+system_configs/home/.ssh/known_hosts
+
+# --- Temporary & Backup Files ---
+
+# Temporary backup files
+*.backup.*
+*~
+.swp
+.swo
+
+# --- Log Files ---
+
+# Log files
+*.log
+logs/
+
+# --- OS Generated Files ---
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows system files
+ehthumbs.db
+Thumbs.db
+
+# --- Docker Runtime Data ---
+
+# Docker volumes and data
+docker/data/
+docker/volumes/
+
+# Caddy data and certificates
+docker/config/caddy/data/
+docker/config/caddy/config/
+
+# --- Development Overrides ---
+
+# Any local development overrides
+docker-compose.override.yml
+compose.override.yml

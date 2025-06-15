@@ -1,0 +1,76 @@
+# FILE: /home/waldo/server/docker/config/headscale/config.yaml
+
+# --- Server Configuration ---
+
+# Public URL for headscale control server
+server_url: https://hs.ethanwaldo.dev
+
+# Listen address and port for headscale daemon
+listen_addr: 0.0.0.0:8080
+
+# --- Network Configuration ---
+
+# IP address ranges for VPN clients
+prefixes:
+    v4: 100.64.0.0/10 # IPv4 range for Tailscale clients
+    v6: fd7a:115c:a1e0::/48 # IPv6 unique local address range
+
+# --- DNS Settings ---
+
+dns:
+    # Override client DNS settings with headscale configuration
+    override_local_dns: true
+
+    # Enable MagicDNS for hostname resolution within VPN
+    magic_dns: true
+
+    # Base domain for internal DNS queries
+    base_domain: ethanwaldo.dev.hs.tld
+
+    # Global DNS servers for external queries
+    nameservers:
+        global:
+            - 1.1.1.1 # Cloudflare DNS
+
+    # Custom DNS records for internal services
+    extra_records:
+        - name: admin.ethanwaldo.dev # Admin panel hostname
+          type: A
+          value: "100.64.0.1" # Pi gateway IP
+        - name: chat.ethanwaldo.dev # Ollama interface hostname
+          type: A
+          value: "100.64.0.1"
+
+# --- Database Configuration ---
+
+# SQLite database settings for headscale state
+database:
+    type: sqlite
+    sqlite:
+        path: /var/lib/headscale/db.sqlite # Database file location
+
+# --- Encryption Configuration ---
+
+# Noise protocol private key for secure communication
+noise:
+    private_key_path: /var/lib/headscale/noise_private.key
+
+# --- DERP Relay Configuration ---
+
+derp:
+    # Built-in DERP server (disabled - using Tailscale's)
+    server:
+        enabled: false
+
+    # External DERP relay servers for NAT traversal
+    urls:
+        - https://controlplane.tailscale.com/derpmap/default
+
+    # Automatically update DERP server list
+    auto_update_enabled: true
+
+# --- Logging Configuration ---
+
+log:
+    format: text # Plain text log format
+    level: info # Log verbosity level
