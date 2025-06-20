@@ -1,0 +1,15 @@
+# FILE: /home/waldo/server/docker/config/caddy/Caddyfile
+
+# --- Publicly Accessible Sites ---
+
+# Main website - serves static files with compression
+ethanwaldo.dev {
+    root * /srv/public
+    file_server
+    encode gzip zstd
+}
+
+# Headscale VPN server - proxy to local service
+hs.ethanwaldo.dev {
+    reverse_proxy localhost:8080
+}

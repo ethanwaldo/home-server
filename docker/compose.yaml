@@ -1,0 +1,58 @@
+# FILE: /home/waldo/server/docker/compose.yaml
+
+services:
+    # --- Dynamic DNS Service ---
+
+    # DDClient - automatic DNS record updates when public IP changes
+    ddclient:
+        image: lscr.io/linuxserver/ddclient:latest
+        container_name: ddclient
+        restart: unless-stopped
+        environment:
+            - PUID=1000 # User ID for file permissions
+            - PGID=1003 # Group ID for file permissions
+            - TZ=America/New_York # Timezone for logs and scheduling
+            - PORKBUN_API_KEY=${PORKBUN_API_KEY} # Porkbun API key from env file
+            - PORKBUN_SECRET_KEY=${PORKBUN_SECRET_KEY} # Porkbun secret from env file
+        volumes:
+            - ./config/ddclient/ddclient.conf:/config/ddclient.conf # DDClient configuration
+
+    # --- Reverse Proxy & Web Server ---
+
+    # Caddy - handles HTTPS, reverse proxy, and static file serving
+    caddy:
+        image: caddy:latest
+        container_name: caddy
+        restart: unless-stopped
+        network_mode: host # Direct host network access for port 80/443
+        volumes:
+            - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile # Reverse proxy configuration
+            - /home/waldo/site:/srv # Static website files
+            - caddy_data:/data # TLS certificates and cache
+            - caddy_config:/config # Caddy runtime configuration
+
+    # --- VPN Server ---
+
+    # Headscale - self-hosted Tailscale coordination server
+    headscale:
+        image: headscale/headscale:latest
+        container_name: headscale
+        restart: unless-stopped
+        network_mode: host # Direct network access for VPN coordination
+        volumes:
+            - ./config/headscale/config.yaml:/etc/headscale/config.yaml:ro # Headscale config (read-only)
+            - headscale_data:/var/lib/headscale # Database and keys
+        dns:
+            - 8.8.8.8 # Google DNS for external queries
+            - 1.1.1.1 # Cloudflare DNS backup
+        command: serve # Start headscale server
+        depends_on:
+            - ddclient # Wait for DNS updates before starting
+
+# --- Persistent Storage ---
+
+# Named volumes for container data persistence
+volumes:
+    caddy_data: # TLS certificates and Caddy cache
+    caddy_config: # Caddy runtime configuration
+    headscale_data: # VPN server database and encryption keys
