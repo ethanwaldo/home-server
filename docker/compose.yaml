@@ -49,6 +49,23 @@ services:
         depends_on:
             - ddclient # Wait for DNS updates before starting
 
+    # --- OSRS AI Assistant API ---
+
+    # Wise Young Man - OSRS AI assistant backend
+    wise-young-man:
+        build:
+            context: /home/waldo/site/wise-young-man
+            dockerfile: Dockerfile
+        container_name: wise-young-man
+        restart: unless-stopped
+        network_mode: host # Access to localhost:8002
+        volumes:
+            - /home/waldo/site/wise-young-man/osrs_raw_data:/app/osrs_raw_data # Persistent database
+            - /home/waldo/site/wise-young-man/osrs_env:/app/osrs_env # Reuse existing venv
+            - /home/waldo/site/wise-young-man/scripts:/app/scripts # Live code updates
+        environment:
+            - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+
 # --- Persistent Storage ---
 
 # Named volumes for container data persistence

@@ -4,9 +4,23 @@
 
 # Main website - serves static files with compression
 ethanwaldo.dev {
-    root * /srv/public
-    file_server
-    encode gzip zstd
+    # Reverse proxy for wise-young-man API (direct to backend)
+    handle /wise-young-man/api* {
+        uri strip_prefix /wise-young-man/api
+        reverse_proxy localhost:8002
+    }
+    
+    # Reverse proxy for wise-young-man frontend
+    handle /wise-young-man* {
+        reverse_proxy localhost:3000
+    }
+    
+    # Serve static files for everything else
+    handle {
+        root * /srv/public
+        file_server
+        encode gzip zstd
+    }
 }
 
 # Headscale VPN server - proxy to local service
