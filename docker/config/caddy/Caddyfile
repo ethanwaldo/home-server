@@ -7,7 +7,7 @@ ethanwaldo.dev {
     # Reverse proxy for wise-young-man API (direct to backend)
     handle /wise-young-man/api* {
         uri strip_prefix /wise-young-man/api
-        reverse_proxy localhost:8002
+        reverse_proxy localhost:8005
     }
     
     # Reverse proxy for wise-young-man frontend
