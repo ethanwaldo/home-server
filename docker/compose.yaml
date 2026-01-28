@@ -27,7 +27,7 @@ services:
         network_mode: host # Direct host network access for port 80/443
         volumes:
             - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile # Reverse proxy configuration
-            - /home/waldo/site:/srv # Static website files
+            - ../site:/srv # Static website files
             - caddy_data:/data # TLS certificates and cache
             - caddy_config:/config # Caddy runtime configuration
 
@@ -49,21 +49,38 @@ services:
         depends_on:
             - ddclient # Wait for DNS updates before starting
 
-    # --- OSRS AI Assistant API ---
-
-    # Wise Young Man - OSRS AI assistant backend
-    wise-young-man:
+    # --- Tree Gnome AI Assistant API ---
+    
+    # Tree Gnome - OSRS AI assistant backend
+    tree-gnome:
         build:
-            context: /opt/wise-young-man-deploy
+            context: /opt/tree-gnome
             dockerfile: Dockerfile
-        container_name: wise-young-man
+        container_name: tree-gnome
         restart: unless-stopped
-        network_mode: host # Access to localhost:8002
+        network_mode: host # Access to localhost:8000
         volumes:
-            - /opt/wise-young-man-data/osrs_raw_data:/app/osrs_raw_data # Persistent database
-            - /opt/wise-young-man-deploy/scripts:/app/scripts # Live code updates
+            - /opt/tree-gnome-data:/app/osrs_raw_data # Persistent database
         environment:
             - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+
+    # Tree Gnome Frontend
+    tree-gnome-frontend:
+        build:
+            context: /opt/tree-gnome/frontend
+            dockerfile: Dockerfile
+        container_name: tree-gnome-frontend
+        restart: unless-stopped
+        network_mode: host # Access to localhost:3000
+
+    # Graph Explorer - New static site backend
+    graph-explorer:
+        build:
+            context: ../site
+            dockerfile: Dockerfile
+        container_name: graph-explorer
+        restart: unless-stopped
+        network_mode: host # Access to localhost:8050
 
 # --- Persistent Storage ---
 

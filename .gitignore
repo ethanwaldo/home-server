@@ -54,6 +54,31 @@ docker/volumes/
 docker/config/caddy/data/
 docker/config/caddy/config/
 
+# --- Bulky Applications & Runners ---
+
+# GitHub Actions Runner
+actions-runner/
+
+# Nested Repositories (tracked separately)
+site/
+task-slayer/
+tree-gnome/
+
+# --- Development Noise & Environments ---
+
+# Node.js
+node_modules/
+.next/
+dist/
+build/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
 # --- Development Overrides ---
 
 # Any local development overrides

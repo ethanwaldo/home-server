@@ -3,27 +3,42 @@
 # --- Publicly Accessible Sites ---
 
 # Main website - serves static files with compression
-ethanwaldo.dev {
-    # Reverse proxy for wise-young-man API (direct to backend)
-    handle /wise-young-man/api* {
-        uri strip_prefix /wise-young-man/api
-        reverse_proxy localhost:8005
+# Main website - serves static files with compression
+ethanwaldo.dev, :80 {
+    # Reverse proxy for tree-gnome API
+    handle /tree-gnome/api* {
+        uri strip_prefix /tree-gnome/api
+        reverse_proxy localhost:8000
     }
-    
-    # Reverse proxy for wise-young-man frontend
-    handle /wise-young-man* {
+
+    # Reverse proxy for tree-gnome Frontend
+    handle /tree-gnome* {
         reverse_proxy localhost:3000
     }
-    
-    # Serve static files for everything else
+
+    # Reverse proxy for Graph Explorer (API and Frontend)
+    handle /api* {
+        reverse_proxy localhost:8050
+    }
+
+    # Serve Graph Explorer via FastAPI backend
     handle {
-        root * /srv/public
-        file_server
-        encode gzip zstd
+        reverse_proxy localhost:8050
     }
 }
 
 # Headscale VPN server - proxy to local service
 hs.ethanwaldo.dev {
     reverse_proxy localhost:8080
+}
+
+# Task Slayer - Project for college course
+taskslayer.ethanwaldo.dev {
+    # Frontend
+    reverse_proxy localhost:3001
+
+    # Backend API
+    handle_path /api* {
+        reverse_proxy localhost:5001
+    }
 }
