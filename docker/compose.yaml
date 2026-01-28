@@ -82,6 +82,37 @@ services:
         restart: unless-stopped
         network_mode: host # Access to localhost:8050
 
+    # --- Task Slayer - College Project ---
+
+    task-slayer-frontend:
+        build:
+            context: ../task-slayer/client
+            target: ${NODE_ENV:-dev} # Use 'prod' on the Pi
+        container_name: task-slayer-frontend
+        restart: always
+        environment:
+            - VITE_API_URL=/api
+        network_mode: host # Access via port 3001 (configured in Vite/Nginx)
+
+    task-slayer-backend:
+        build:
+            context: ../task-slayer/server
+        container_name: task-slayer-backend
+        restart: always
+        environment:
+            - PORT=5001
+            - MONGO_URI=mongodb://localhost:27017/taskslayer
+            - NODE_ENV=${NODE_ENV:-development}
+        network_mode: host # Access via port 5001
+
+    task-slayer-mongodb:
+        image: mongo:latest
+        container_name: task-slayer-mongodb
+        restart: always
+        network_mode: host # Access via port 27017
+        volumes:
+            - task_slayer_mongodb_data:/data/db
+
 # --- Persistent Storage ---
 
 # Named volumes for container data persistence
@@ -89,3 +120,4 @@ volumes:
     caddy_data: # TLS certificates and Caddy cache
     caddy_config: # Caddy runtime configuration
     headscale_data: # VPN server database and encryption keys
+    task_slayer_mongodb_data: # Task Slayer database
